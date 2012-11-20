@@ -251,12 +251,14 @@ def main(argv=None):
     # Okay, parse some arguments, finally
     args = parser.parse_args()
 
+    role_based=os.getenv('AWS_ROLE_BASED_IAM', False)
+    
     # Attempt to read a few key parameters from environment variables
     # *or* the command line, enforcing a precedence order and
     # complaining should the required parameter not be defined in
     # either location.
     secret_key = os.getenv('AWS_SECRET_ACCESS_KEY')
-    if secret_key is None:
+    if secret_key is None and not role_based:
         logger.error(
             msg='no AWS_SECRET_ACCESS_KEY defined',
             hint='Define the environment variable AWS_SECRET_ACCESS_KEY.')
@@ -273,7 +275,7 @@ def main(argv=None):
 
     if args.aws_access_key_id is None:
         aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
-        if aws_access_key_id is None:
+        if aws_access_key_id is None and not role_based:
             logger.error(
                 msg='no storage prefix defined',
                 hint=('Either set the --aws-access-key-id option or define '
